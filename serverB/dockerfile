@@ -7,4 +7,4 @@ run pip install -r requirements.txt
 expose 5000
 entrypoint [ "python" ]
 
-cmd [ "app.py" ]
+cmd [ "__init__.py" ]

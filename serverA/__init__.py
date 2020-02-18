@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-URL = "http://service"
+URL = "http://service:5000"
 
 
 @app.route('/')

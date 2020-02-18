@@ -1,0 +1,29 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: application-pipeline-run
+spec:
+  serviceAccountName: tutorial-service
+  pipelineRef:
+    name: application-pipeline
+  resources:
+    - name: git-source
+      resourceRef:
+        name: git
+  params:
+    - name: pathToYamlFile
+      value: "deploy.yaml"
+    - name: pathToContext
+      value: "."
+    - name: imageUrl-a
+      value: "beppeserver-a"
+    - name: imageTag-a
+      value: "beppeserver-a-tag"
+    - name: pathToContext-a
+      value: "./serverA"
+    - name: imageUrl-b
+      value: "beppeserver-b"
+    - name: imageTag-b
+      value: "beppeserver-b-tag"
+    - name: pathToContext-b
+      value: "./serverB"

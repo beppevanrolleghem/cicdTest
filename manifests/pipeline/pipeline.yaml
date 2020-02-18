@@ -1,0 +1,86 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: application-pipeline
+spec:
+  resources:
+    - name: git-source
+      type: git
+  params:
+    - name: pathToYamlFile
+      description: path to deploy.yaml for final application deploy
+      default: config.yaml
+    - name: pathToContext
+      description: The path to the build context, used by Kaniko - within the workspace
+      default: .
+    - name: imageUrl-a
+      description: Url of image repository a
+      default: deploy_target
+    - name: imageTag-a
+      description: Tag to apply to the built image a
+      default: latest
+    - name: pathToContext-a
+      description: The path to the build context, used by Kaniko - within the workspace
+      default: .
+    - name: imageUrl-b
+      description: Url of image repository
+      default: deploy_target
+    - name: imageTag-b
+      description: Tag to apply to the built image
+      default: latest
+    - name: pathToContext-b
+      description: The path to the build context, used by Kaniko - within the workspace
+      default: .
+  tasks:
+  - name: build-and-push-a
+    taskRef:
+      name: build-and-push
+    params:
+      - name: pathToContext
+        value: "$(params.pathToContext-a)"
+      - name: imageUrl
+        value: "$(params.imageUrl-a)"
+      - name: imageTag
+        value: "$(params.imageTag-a)"
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-source
+  - name: build-and-push-b
+    taskRef:
+      name: build-and-push
+    runAfter:
+      - build-and-push-a
+    params:
+      - name: pathToContext
+        value: "$(params.pathToContext-b)"
+      - name: imageUrl
+        value: "$(params.imageUrl-b)"
+      - name: imageTag
+        value: "$(params.imageTag-b)"
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-source
+  - name: deploy-application
+    taskRef:
+      name: deploy-application
+    runAfter:
+      - build-and-push-b
+    params:
+      - name: pathToContext
+        value: "$(params.pathToContext)"
+      - name: pathToYamlFile
+        value: "$(params.pathToYamlFile)"
+      - name: imageUrl-a
+        value: "$(params.imageUrl-a)"
+      - name: imageTag-a
+        value: "$(params.imageTag-a)"
+      - name: imageUrl-b
+        value: "$(params.imageUrl-b)"
+      - name: imageTag-b
+        value: "$(params.imageTag-b)"
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-source
