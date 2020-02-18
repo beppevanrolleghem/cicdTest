@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: front-end
-      image: IMAGE-A
+      image: beppev/server-a:latest
       ports:
         - containerPort: 5000
 
