@@ -9,4 +9,4 @@ spec:
     - name: revision
       value: master
     - name: url
-      value: https://github.com/beppevanrolleghem/cicdTest
+      value: git://github.com/beppevanrolleghem/cicdTest

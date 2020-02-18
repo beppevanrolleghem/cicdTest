@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: server-check
+spec:
+  selector:
+    server: "http"
+  ports:
+    - name: http
+      protocol: TCP
+      port: 5000

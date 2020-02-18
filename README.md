@@ -29,8 +29,10 @@ https://developer.ibm.com/tutorials/deploy-a-hello-world-application-on-kubernet
 
 https://github.com/tektoncd/pipeline/blob/master/docs/tutorial.md
 
+https://github.com/tektoncd/pipeline/blob/master/docs/install.md
+
 install tekton
 
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/latest/release.yaml
 
-
+docker config is een configmap gemaakt van config.json wa base64 username:pass inhoud heeft erges
