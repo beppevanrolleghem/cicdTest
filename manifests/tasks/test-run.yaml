@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: test-run
+spec:
+  serviceAccountName: tutorial-service
+  taskRef:
+    name: build-and-push 
+  inputs:
+    resources:
+        - name: git-source
+          resourceRef:
+            name: git
+    params:
+      - name: pathToContext
+        value: /serverA/ #configure: may change according to your source
+      - name: imageUrl
+        value: "server-a"
+      - name: imageTag
+        value: "latest"

@@ -16,15 +16,15 @@ spec:
     - name: pathToContext
       value: "."
     - name: imageUrl-a
-      value: "gs://BUCKETNAME/server-a"
+      value: "server-a"
     - name: imageTag-a
-      value: "release"
+      value: "latest"
     - name: pathToContext-a
       value: "./serverA"
     - name: imageUrl-b
-      value: "gs://BUCKETNAME/server-b"
+      value: "server-b"
     - name: imageTag-b
-      value: "release"
+      value: "latest"
     - name: pathToContext-b
       value: "./serverB"
 
