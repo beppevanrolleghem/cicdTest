@@ -3,8 +3,7 @@
 
 ## teamcity
 
-voor teamcity was het opstellen van de server heel simpel aangezien dit via een docker container kan.
-Er moet wel een aparte agent opgesteld worden, maar dit kan ook via een docker container.
+installatie teamcity via docker containers
 
 server:
 
@@ -18,9 +17,14 @@ agent:
 
 docker run -it -e SERVER_URL="localhost:8080" -v /Users/beppe/teamcity/agent/:/data/teamcity_agent/conf jetbrains/teamcity-agent
 
-de reden dat we een agent nodig hebben is om docker images te builden en pushen. 
+gewone installatie:
 
+-zorg dat de gewenste tools aanwezig/geconfigureerd zijn (in ons geval docker en helm) op de agent (in ons geval gebruiken we de main server ook als agent)
+(copy kubeconfig naar agent voor helm)
 
+-in project settings. voeg docker stappen toe om container images te builden en pushen. voeg stap toe voor helm remove (verwijdert huidig runnende container) en voeg laatste stap toe helm install (specifieer altijd helm config locatie)
+
+voordeel is dat deze kunnen geconfigureerd worden in ide (dus local build settings kunnen geexport worden naar build server als men een intellij ide gebruikt)
 
 
 ## tekton

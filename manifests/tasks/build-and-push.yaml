@@ -29,5 +29,5 @@ spec:
         - /kaniko/executor
       args:
         - "--dockerfile=dockerfile"
-        - "--destination=$(inputs.params.imageUrl):$(inputs.params.imageTag)"
+        - "--destination=beppev/$(inputs.params.imageUrl):$(inputs.params.imageTag)"
         - "--context=$(inputs.resources.git-source.path)/$(inputs.params.pathToContext)/"

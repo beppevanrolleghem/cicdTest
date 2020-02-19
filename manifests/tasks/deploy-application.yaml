@@ -50,4 +50,4 @@ spec:
       args:
         - "apply"
         - "-f"
-        - "$(inputs.resources.git-source.path)/$(inputs.params.pathToContext)/$(inputs.params.pathToYamlFile)"
+        - "$(inputs.resources.git-source.path)/deploy.yaml"

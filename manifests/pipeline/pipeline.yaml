@@ -69,9 +69,9 @@ spec:
       - build-and-push-b
     params:
       - name: pathToContext
-        value: "$(params.pathToContext)"
+        value: "."
       - name: pathToYamlFile
-        value: "$(params.pathToYamlFile)"
+        value: "deploy.yaml"
       - name: imageUrl-a
         value: "$(params.imageUrl-a)"
       - name: imageTag-a
