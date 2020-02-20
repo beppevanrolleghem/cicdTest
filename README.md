@@ -40,3 +40,10 @@ install tekton
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/latest/release.yaml
 
 docker config is een configmap gemaakt van config.json wa base64 username:pass inhoud heeft erges
+
+
+kubectl create clusterrole tutorial-role \
+               --verb=get,list,watch,create,update,patch,delete \
+               --resource=deployments,deployments.apps,services,pods
+               
+https://github.com/tektoncd/triggers/blob/master/docs/getting-started/README.md

@@ -1,1 +1,2 @@
 config.json
+manifests/triggers/webhook-secret.yaml
