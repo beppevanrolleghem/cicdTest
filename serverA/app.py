@@ -8,6 +8,10 @@ URL = "http://server-check:6000"
 
 @app.route('/')
 def doRequest():
+    return "it works"
+
+@app.route('/check')
+def itWorks():
     return requests.get(URL).json()
 
 
