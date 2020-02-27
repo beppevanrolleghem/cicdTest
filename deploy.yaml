@@ -131,6 +131,7 @@ metadata:
 spec:
   selector:
     expose: "true"
+    istio: ingressgateway
   servers:
   - port:
       number: 6000
