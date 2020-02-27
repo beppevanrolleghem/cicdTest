@@ -31,6 +31,16 @@ spec:
     - name: pathToContext-b
       description: The path to the build context, used by Kaniko - within the workspace
       default: .
+    - name: imageUrl-c
+      description: Url of image repository
+      default: deploy_target
+    - name: imageTag-c
+      description: Tag to apply to the built image
+      default: latest
+    - name: pathToContext-c
+      description: The path to the build context, used by Kaniko - within the workspace
+      default: .
+
   tasks:
   - name: build-and-push-a
     taskRef:
@@ -62,11 +72,23 @@ spec:
       inputs:
         - name: git-source
           resource: git-source
+  - name: build-and-push-c
+    taskRef:
+      name: build-and-push
+    runAfter:
+      - build-and-push-b
+    params:
+      - name: pathToContext
+        value: "$(params.pathToContext-c)"
+      - name: imageUrl
+        value: "$(params.imageUrl-c)"
+      - name: imageTag
+        value: "$(params.imageTag-c)"
   - name: deploy-application
     taskRef:
       name: deploy-application
     runAfter:
-      - build-and-push-b
+      - build-and-push-c
     params:
       - name: pathToContext
         value: "."
