@@ -84,6 +84,10 @@ spec:
         value: "$(params.imageUrl-c)"
       - name: imageTag
         value: "$(params.imageTag-c)"
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-source
   - name: deploy-application
     taskRef:
       name: deploy-application
