@@ -14,6 +14,11 @@ def doRequest():
 def itWorks():
     return requests.get(URL).json()
 
+@app.route('/text')
+def hope():
+    return requests.get(URL).text
+
+
 @app.route('/find/<name>/<port>')
 def findServer(name, port):
     return requests.get("http://"+name+":"+port)

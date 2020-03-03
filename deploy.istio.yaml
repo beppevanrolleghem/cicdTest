@@ -680,8 +680,8 @@ spec:
   servers:
   - port:
       number: 6000
-      name: tcp
-      protocol: TCP
+      name: http
+      protocol: HTTP
     hosts:
       - "*"
 ---
