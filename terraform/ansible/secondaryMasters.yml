@@ -1,0 +1,12 @@
+- hosts: SecondaryMasters
+  tasks:
+    - name: reset kubeadm for safety
+      command: kubeadm reset -f
+    - name: copy join command
+      copy:
+        src: joinMaster.sh
+        dest: join.sh
+    - name: make executable
+      command: chmod +x join.sh
+    - name: run join
+      command: sh ./join.sh

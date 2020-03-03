@@ -1,0 +1,6 @@
+127.0.0.1 localhost
+10.0.2.2 loadbalancer
+10.0.2.10 master1
+10.0.2.11 master2
+10.0.2.12 master3
+10.0.2.20 worker1

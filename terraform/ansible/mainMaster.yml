@@ -1,0 +1,36 @@
+- hosts: MainMaster
+  tasks:
+    - name: disable swap
+      command: swapoff -a
+      ignore_errors: yes
+    - name: force reset kubeadm for safety
+      command: kubeadm reset -f
+    - name: generateCert
+      command: kubeadm alpha certs certificate-key
+      register: cert
+    - name: kubeadm init
+      command: kubeadm init --control-plane-endpoint "10.0.2.2:6443" --upload-certs --certificate-key {{ cert.stdout }}
+      ignore_errors: no
+    - name: create .kube directory
+      command: mkdir ~/.kube
+      ignore_errors: yes
+    - name: ensure dns server
+      command: echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    - name: setup kubeconfig
+      command: cp /etc/kubernetes/admin.conf ~/.kube/config
+    - name: copy install weave
+      copy:
+        src: ~/installWeave.sh
+        dest: ~/installWeave.sh
+      ignore_errors: yes
+    - name: make executable
+      command: chmod +x installWeave.sh
+    - name: weave setup
+      command: sh ~/installWeave.sh
+    - name: generate worker join command
+      command: kubeadm token create --print-join-command
+      register: joinOutput
+    - name: save worker join
+      local_action: copy content={{ joinOutput.stdout }} dest=~/join.sh
+    - name: save master join
+      local_action: copy content="{{ joinOutput.stdout }} --control-plane --certificate-key {{ cert.stdout }}" dest=~/joinMaster.sh

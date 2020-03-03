@@ -1,0 +1,91 @@
+- hosts: all
+  tasks:
+    - name: test connection
+      ping:
+    - name: add kubernetes repo
+      yum_repository:
+        name: kubernetes
+        description: "some repo"
+        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    - name: copy hosts file
+      copy:
+        src: hosts
+        dest: /etc/hosts
+    - name: ensure dns is in resolvconf
+      command: echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    - name: setenforce 0 (linux perm step 1)
+      command: setenforce 0
+    - name: linux perm step 2
+      replace:
+        path: /etc/selinux/config
+        regexp: 'SELINUX=enforcing'
+        after: 'SELINUX=permissive'
+    - name: update all packages
+      yum:
+        name: '*'
+        state: latest
+    - name: install kubernetes requirements
+      yum:
+        name: "{{ requirements }}"
+      vars:
+        requirements:
+          - docker
+          - kubeadm
+          - kubectl
+          - kubelet
+    - name: enable and start docker service
+      service:
+        name: docker
+        enabled: yes
+        state: started
+    - name: enable and start kubelet service
+      service:
+        name: kubelet
+        enabled: yes
+        state: started
+    - name: open port 6443 tcp
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 6443/tcp
+    - name: open port 10250 tcp
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 10250/tcp
+    - name: open port 443 tcp
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 443/tcp
+
+- hosts: Workers
+  tasks:
+    - name: open port range 30000-32767 tcp
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 30000-32767/tcp
+
+- hosts: Masters
+  tasks:
+    - name: open port range 2379-2380 tcp (etcd)
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 2379-2380/tcp
+    - name: open port 10251-10252 tcp (scheduler and controller manager)
+      firewalld:
+        zone: public
+        permanent: yes
+        state: enabled
+        port: 10251-10252/tcp
