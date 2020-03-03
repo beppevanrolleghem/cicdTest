@@ -1,2 +1,4 @@
 config.json
 manifests/triggers/webhook-secret.yaml
+venv
+venv/**
