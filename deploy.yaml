@@ -1,19 +1,30 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-project-1
+  labels:
+    istio-injection: enabled
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server-a
+  namespace: istio-project-1
 spec:
   replicas: 1
   selector:
     matchLabels:
       server: "http"
+      app: "ja"
       expose: "true"
   template:
     metadata:
       labels:
         server: "http"
+        app: "ja"
         expose: "true"
+        backend: "true"
     spec:
       containers:
         - name: front-end
@@ -25,6 +36,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server-b
+  namespace: istio-project-1
 spec:
   replicas: 1
   selector:
@@ -49,6 +61,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: server-c
+  namespace: istio-project-1
 spec:
   replicas: 1
   selector:
@@ -73,18 +86,21 @@ apiVersion: v1
 kind: Service
 metadata:
   name: server-b-c-service
+  namespace: istio-project-1
 spec:
   selector:
-    app: "ja"
+    backend: "true"
   ports:
     - name: http
       protocol: TCP
       port: 6000
+
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: expose-server
+  namespace: istio-project-1
 spec:
   type: NodePort
   selector:
@@ -99,7 +115,8 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-    name: example-loadbalancer
+  name: example-loadbalancer
+  namespace: istio-project-1
 spec:
     selector:
         expose: "true"
@@ -114,8 +131,9 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: server-check-destination
+  namespace: istio-project-1
 spec:
-  host: server-check
+  host: server-b-c-service
   subsets:
   - name: v1
     labels:
@@ -128,25 +146,28 @@ apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
   name: server-check-gateway
+  namespace: istio-project-1
 spec:
   selector:
     expose: "true"
-    istio: ingressgateway
   servers:
-  - port:
-      number: 6000
-      name: http
-      protocol: HTTP
-    hosts:
-      - "*"
+    - port:
+        number: 6000
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: server-check
+  namespace: istio-project-1
 spec:
   selector:
     expose: "true"
+    version: v1
+    version: v2
   ports:
     - name: http
       protocol: TCP
@@ -157,6 +178,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: server-check-service
+  namespace: istio-project-1
 spec:
   hosts:
     - "*"
