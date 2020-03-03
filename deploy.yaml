@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: istio-project-1
   labels:
-    istio-injection: enabled
+    istio-injection: enabled #zorgt voor auto sidecar injection
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -16,13 +16,13 @@ spec:
   selector:
     matchLabels:
       server: "http"
-      app: "ja"
+      app: "project-1" #app label bepaald groepering pods in kiali dashboard dus makkelijker te gebruiken
       expose: "true"
   template:
     metadata:
       labels:
         server: "http"
-        app: "ja"
+        app: "project-1"
         expose: "true"
         backend: "true"
     spec:
@@ -42,13 +42,13 @@ spec:
   selector:
     matchLabels:
       server: "http"
-      app: "ja"
+      app: "project-1"
       version: v1
   template:
     metadata:
       labels:
         server: "http"
-        app: "ja"
+        app: "project-1"
         version: v1
     spec:
       containers:
@@ -67,13 +67,13 @@ spec:
   selector:
     matchLabels:
       server: "http"
-      app: "ja"
+      app: "project-1"
       version: v2
   template:
     metadata:
       labels:
         server: "http"
-        app: "ja"
+        app: "project-1"
         version: v2
     spec:
       containers:
@@ -85,8 +85,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: server-b-c-service
+  name: server-check
   namespace: istio-project-1
+  labels:
+    app: "project-1"
 spec:
   selector:
     backend: "true"
@@ -94,29 +96,14 @@ spec:
     - name: http
       protocol: TCP
       port: 6000
-
----
-kind: Service
-apiVersion: v1
-metadata:
-  name: expose-server
-  namespace: istio-project-1
-spec:
-  type: NodePort
-  selector:
-    expose: "true"
-  ports:
-    - name: http
-      protocol: TCP
-      targetPort: 5000
-      port: 5000
-      nodePort: 30036
 ---
 kind: Service
 apiVersion: v1
 metadata:
   name: example-loadbalancer
   namespace: istio-project-1
+  labels:
+    app: "project-1"
 spec:
     selector:
         expose: "true"
@@ -132,8 +119,10 @@ kind: DestinationRule
 metadata:
   name: server-check-destination
   namespace: istio-project-1
+  labels:
+    app: "project-1"
 spec:
-  host: server-b-c-service
+  host: server-check
   subsets:
   - name: v1
     labels:
@@ -147,6 +136,8 @@ kind: Gateway
 metadata:
   name: server-check-gateway
   namespace: istio-project-1
+  labels:
+    app: "project-1"
 spec:
   selector:
     expose: "true"
@@ -158,27 +149,13 @@ spec:
       hosts:
         - "*"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: server-check
-  namespace: istio-project-1
-spec:
-  selector:
-    expose: "true"
-    version: v1
-    version: v2
-  ports:
-    - name: http
-      protocol: TCP
-      targetPort: 6000
-      port: 6000
----
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: server-check-service
   namespace: istio-project-1
+  labels:
+    app: "project-1"
 spec:
   hosts:
     - "*"
@@ -189,13 +166,13 @@ spec:
     - port: 6000
     route:
     - destination:
-        host: server-b-c-service
+        host: server-check
         port:
           number: 6000
         subset: v1
       weight: 50
     - destination:
-        host: server-b-c-service
+        host: server-check
         port:
           number: 6000
         subset: v2
