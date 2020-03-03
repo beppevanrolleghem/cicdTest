@@ -103,7 +103,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: example-loadbalancer
+  name: expose-server-a
   namespace: istio-project-1
   labels:
     app: "project-1"
