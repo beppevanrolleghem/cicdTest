@@ -47,3 +47,10 @@ kubectl create clusterrole tutorial-role \
                --resource=deployments,deployments.apps,services,pods
                
 https://github.com/tektoncd/triggers/blob/master/docs/getting-started/README.md
+
+
+# service meshes
+
+## istio traffic routing
+
+tot nu toe is er traffic routing geimplementeerd. vanavond blogpost hierover
