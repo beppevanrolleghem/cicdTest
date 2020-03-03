@@ -1,4 +1,4 @@
 config.json
-manifests/triggers/webhook-secret.yaml
+manifests/resources/secrets.yaml
 venv
 

@@ -39,3 +39,9 @@ spec:
             value: "latest"
           - name: pathToContext-b
             value: "./serverB"
+          - name: imageUrl-c
+            value: "server-c"
+          - name: imageTag-c
+            value: "latest"
+          - name: pathToContext-c
+            value: "./serverC"

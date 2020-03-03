@@ -8,7 +8,7 @@ spec:
   inputs:
     params:
     - name: GitHubOrg
-      value: "github.com"
+      value: "beppevanrolleghem"
     - name: GitHubUser
       value: "beppevanrolleghem"
     - name: GitHubRepo

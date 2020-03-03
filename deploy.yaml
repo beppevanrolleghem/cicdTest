@@ -28,6 +28,7 @@ spec:
       containers:
         - name: front-end
           image: beppev/server-a:latest
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 5000
 ---
@@ -55,6 +56,7 @@ spec:
       containers:
         - name: front-end
           image: beppev/server-b:latest
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 6000
 ---
@@ -82,6 +84,7 @@ spec:
       containers:
         - name: front-end
           image: beppev/server-c:latest
+          imagePullPolicy: "Always"
           ports:
             - containerPort: 6000
 ---
@@ -159,18 +162,18 @@ metadata:
     app: "project-1"
 spec:
   hosts:
-    "*"
+    - "*"
   gateways:
     - expose-server-gateway
   http:
     - match: 
       - uri:
-        prefix: /server-a/
+          prefix: /server-a
       route:
         - destination:
-          port: 
-            number: 5000
-          host: expose-server-service
+            port: 
+              number: 5000
+            host: expose-server-service
 --- # TODO fix gateway zodat we ingress gateway kunnen gebruike ipv de fuken loadbalancer.
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
