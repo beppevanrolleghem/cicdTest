@@ -24,7 +24,6 @@ spec:
         server: "http"
         app: "project-1"
         expose: "true"
-        backend: "true"
     spec:
       containers:
         - name: front-end
@@ -44,12 +43,14 @@ spec:
       server: "http"
       app: "project-1"
       version: v1
+      backend: "true"
   template:
     metadata:
       labels:
         server: "http"
         app: "project-1"
         version: v1
+        backend: "true"
     spec:
       containers:
         - name: front-end
@@ -69,12 +70,14 @@ spec:
       server: "http"
       app: "project-1"
       version: v2
+      backend: "true" 
   template:
     metadata:
       labels:
         server: "http"
         app: "project-1"
         version: v2
+        backend: "true"
     spec:
       containers:
         - name: front-end
