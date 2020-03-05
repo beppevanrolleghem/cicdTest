@@ -214,7 +214,7 @@ spec:
             host: expose-server-service
     - match:
       - uri:
-          prefix: /get
+          prefix: /server-d
       route:
         - destination:
             port:
@@ -250,7 +250,7 @@ spec:
   hosts:
     - "*"
   gateways:
-    - server-check-gateway
+    - expose-server-gateway
   tcp:
   - match:
     - port: 6000
@@ -269,4 +269,6 @@ spec:
         weight: 50
         mirror:
           host: mirror-service
+          port:
+            number: 6000
         mirror_percent: 100

@@ -14,7 +14,7 @@ def doRequest(path):
     return "None"
 
 
-@app.route('/get')
+@app.route('/server-d/get')
 def get():
     with open("test.txt", "r") as infile:
         return 'we have something: ' + '\n '.join(infile.readlines())
