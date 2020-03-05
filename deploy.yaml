@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: front-end
-          image: beppev/server-a:latest
+          image: beppev/server-a:master
           imagePullPolicy: "Always"
           ports:
             - containerPort: 5000
@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
         - name: front-end
-          image: beppev/server-b:latest
+          image: beppev/server-b:master
           imagePullPolicy: "Always"
           ports:
             - containerPort: 6000
@@ -63,7 +63,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server-c
+  name: server-b-test
   namespace: istio-project-1
 spec:
   replicas: 1
@@ -83,7 +83,7 @@ spec:
     spec:
       containers:
         - name: front-end
-          image: beppev/server-c:latest
+          image: beppev/server-b:experimental
           imagePullPolicy: "Always"
           ports:
             - containerPort: 6000
