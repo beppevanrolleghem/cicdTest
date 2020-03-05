@@ -90,4 +90,4 @@ spec:
     - name: ExternalDomain
       value: 35.233.93.220
   timeout: 1000s
-  serviceAccount: service-acc
+  serviceAccountName: service-acc

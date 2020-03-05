@@ -129,6 +129,7 @@ spec:
       command: ["kubectl"]
       args:
         - "delete"
+        - "--ignore-not-found"
         - "-f"
         - "$(inputs.resources.git-source.path)/deploy.yaml"
 ---
