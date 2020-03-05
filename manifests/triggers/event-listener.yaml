@@ -1,11 +1,12 @@
+---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: event-listener
+  name: github-event-listener
 spec:
-  serviceAccountName: tutorial-service
+  serviceAccountName: service-acc
   triggers:
-    - bindings:
-      - name: pipeline-binding
-      template:
-        name: trigger-template
+  - binding:
+      name: github-trigger-binding
+    template:
+      name: github-trigger-template

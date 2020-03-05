@@ -107,7 +107,7 @@ spec:
     spec:
       containers:
         - name: front-end
-          image: beppev/server-d:latest
+          image: beppev/server-d:master
           ports:
             - containerPort: 6000
 ---

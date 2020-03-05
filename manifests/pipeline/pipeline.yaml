@@ -2,111 +2,82 @@ apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
   name: application-pipeline
+  namespace: tekton-pipeline-istio-project-1
 spec:
   resources:
-    - name: git-source
+    - name: git-master
       type: git
-  params:
-    - name: pathToYamlFile
-      description: path to deploy.yaml for final application deploy
-      default: config.yaml
-    - name: pathToContext
-      description: The path to the build context, used by Kaniko - within the workspace
-      default: .
-    - name: imageUrl-a
-      description: Url of image repository a
-      default: deploy_target
-    - name: imageTag-a
-      description: Tag to apply to the built image a
-      default: latest
-    - name: pathToContext-a
-      description: The path to the build context, used by Kaniko - within the workspace
-      default: .
-    - name: imageUrl-b
-      description: Url of image repository
-      default: deploy_target
-    - name: imageTag-b
-      description: Tag to apply to the built image
-      default: latest
-    - name: pathToContext-b
-      description: The path to the build context, used by Kaniko - within the workspace
-      default: .
-    - name: imageUrl-c
-      description: Url of image repository
-      default: deploy_target
-    - name: imageTag-c
-      description: Tag to apply to the built image
-      default: latest
-    - name: pathToContext-c
-      description: The path to the build context, used by Kaniko - within the workspace
-      default: .
-
+    - name: git-experimental
+      type: git
   tasks:
   - name: build-and-push-a
     taskRef:
       name: build-and-push
     params:
-      - name: pathToContext
-        value: "$(params.pathToContext-a)"
-      - name: imageUrl
-        value: "$(params.imageUrl-a)"
-      - name: imageTag
-        value: "$(params.imageTag-a)"
+      - name: context
+        value: "serverA"
+      - name: image-name
+        value: "server-a"
+      - name: version
+        value: "master"
     resources:
       inputs:
         - name: git-source
-          resource: git-source
-  - name: build-and-push-b
+          resource: git-master
+  - name: build-and-push-b-stable
     taskRef:
       name: build-and-push
     runAfter:
       - build-and-push-a
     params:
-      - name: pathToContext
-        value: "$(params.pathToContext-b)"
-      - name: imageUrl
-        value: "$(params.imageUrl-b)"
-      - name: imageTag
-        value: "$(params.imageTag-b)"
+      - name: context
+        value: "serverB"
+      - name: image-name
+        value: "server-b"
+      - name: version
+        value: "master"
     resources:
       inputs:
         - name: git-source
-          resource: git-source
-  - name: build-and-push-c
+          resource: git-master
+  - name: build-and-push-b-experimental
     taskRef:
       name: build-and-push
     runAfter:
-      - build-and-push-b
+      - build-and-push-b-stable
     params:
-      - name: pathToContext
-        value: "$(params.pathToContext-c)"
-      - name: imageUrl
-        value: "$(params.imageUrl-c)"
-      - name: imageTag
-        value: "$(params.imageTag-c)"
+      - name: context
+        value: "serverB"
+      - name: image-name
+        value: "server-b"
+      - name: version
+        value: "experimental"
     resources:
       inputs:
         - name: git-source
-          resource: git-source
+          resource: git-experimental
+  - name: build-and-push-d
+    taskRef:
+      name: build-and-push
+    runAfter:
+      - build-and-push-b-experimental
+    params:
+      - name: context
+        value: "serverD"
+      - name: image-name
+        value: "server-d"
+      - name: version
+        value: "master"
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-master
   - name: deploy-application
     taskRef:
       name: deploy-application
     runAfter:
-      - build-and-push-c
-    params:
-      - name: pathToContext
-        value: "."
-      - name: pathToYamlFile
-        value: "deploy.yaml"
-      - name: imageUrl-a
-        value: "$(params.imageUrl-a)"
-      - name: imageTag-a
-        value: "$(params.imageTag-a)"
-      - name: imageUrl-b
-        value: "$(params.imageUrl-b)"
-      - name: imageTag-b
-        value: "$(params.imageTag-b)"
+      - build-and-push-d
     resources:
       inputs:
         - name: git-source
-          resource: git-source
+          resource: git-master

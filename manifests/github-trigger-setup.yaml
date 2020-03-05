@@ -1,5 +1,23 @@
 ---
 apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github-trigger-binding
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  params:
+  - name: gitrevision
+    value: $(body.pull_request.head.sha)
+  - name: gitrepositoryurl
+    value: $(body.pull_request.head.repo.clone_url)
+  - name: prurl
+    value: $(body.pull_request.html_url)
+  - name: repo
+    value: $(body.pull_request.base.repo.full_name)
+  - name: source
+    value: github
+---
+apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: github-trigger-template
@@ -28,3 +46,15 @@ spec:
           - name: git-experimental
             resourceRef:
               name: git-experimental
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: github-event-listener
+spec:
+  serviceAccountName: service-acc
+  triggers:
+  - binding:
+      name: github-trigger-binding
+    template:
+      name: github-trigger-template

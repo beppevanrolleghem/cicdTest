@@ -109,14 +109,15 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - "--dockerfile=$(inputs.resources.git-source.path)/$(inputs.params.pathToContext)/dockerfile"
+        - "--dockerfile=$(inputs.resources.git-source.path)/$(inputs.params.context)/dockerfile"
         - "--destination=beppev/$(inputs.params.image-name):$(inputs.params.version)"
-        - "--context=$(inputs.resources.git-source.path)/$(inputs.params.pathToContext)/"
+        - "--context=$(inputs.resources.git-source.path)/$(inputs.params.context)/"
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: deploy-application
+  name: destroy-application
+  namespace: tekton-pipeline-istio-project-1
 spec:
   inputs:
     resources:
@@ -130,6 +131,18 @@ spec:
         - "delete"
         - "-f"
         - "$(inputs.resources.git-source.path)/deploy.yaml"
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-application
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  inputs:
+    resources:
+      - name: git-source
+        type: git
+  steps:
     - name: deploy-new-app
       image: lachlanevenson/k8s-kubectl
       command: ["kubectl"]
@@ -150,6 +163,13 @@ spec:
     - name: git-experimental
       type: git
   tasks:
+  - name: destroy-application #@TODO make it so that the delete can be skipped if error
+    taskRef:
+      name: destroy-application
+    resources:
+      inputs:
+        - name: git-source
+          resource: git-master
   - name: build-and-push-a
     taskRef:
       name: build-and-push
@@ -167,8 +187,6 @@ spec:
   - name: build-and-push-b-stable
     taskRef:
       name: build-and-push
-    runAfter:
-      - build-and-push-a
     params:
       - name: context
         value: "serverB"
@@ -183,8 +201,6 @@ spec:
   - name: build-and-push-b-experimental
     taskRef:
       name: build-and-push
-    runAfter:
-      - build-and-push-b
     params:
       - name: context
         value: "serverB"
@@ -199,28 +215,28 @@ spec:
   - name: build-and-push-d
     taskRef:
       name: build-and-push
-    runAfter:
-      - build-and-push-b-experimental
     params:
-      - name: pathToContext
+      - name: context
         value: "serverD"
-      - name: imageUrl
+      - name: image-name
         value: "server-d"
+      - name: version
+        value: "master"
     resources:
       inputs:
         - name: git-source
           resource: git-master
-  - name: deploy-application
+  - name: deploy-application #@TODO make it so that the delete can be skipped if error
     taskRef:
       name: deploy-application
     runAfter:
       - build-and-push-d
-    params:
-      - name: pathToContext
-        value: "."
-      - name: pathToYamlFile
-        value: "deploy.yaml"
+      - build-and-push-b-experimental
+      - build-and-push-a
+      - build-and-push-b-stable
+      - destroy-application
     resources:
       inputs:
         - name: git-source
           resource: git-master
+# DO NOT FORGET TO SET REGCREDS FOR DOCKER

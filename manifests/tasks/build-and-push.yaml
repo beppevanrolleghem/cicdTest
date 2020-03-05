@@ -3,22 +3,20 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: build-and-push
+  namespace: tekton-pipeline-istio-project-1
 spec:
   inputs:
     resources:
       - name: git-source
         type: git
     params:
-      - name: pathToContext
+      - name: context
         description: The path to the build context, used by Kaniko - within the workspace
         default: .
-      - name: pathToDockerfile
-        description: The path to the dockerfile to build
-        default: Dockerfile
-      - name: imageUrl
-        description: value should be like - us.icr.io/test_namespace/builtImageApp
-      - name: imageTag
-        description: Tag to apply to the built image
+      - name: image-name
+        description: dockerhub url
+      - name: version
+        description: image-version (for instance latest or beta)
   steps:
     - name: build-and-push
       image: gcr.io/kaniko-project/executor
@@ -28,6 +26,6 @@ spec:
       command:
         - /kaniko/executor
       args:
-        - "--dockerfile=dockerfile"
-        - "--destination=beppev/$(inputs.params.imageUrl):$(inputs.params.imageTag)"
-        - "--context=$(inputs.resources.git-source.path)/$(inputs.params.pathToContext)/"
+        - "--dockerfile=$(inputs.resources.git-source.path)/$(inputs.params.context)/dockerfile"
+        - "--destination=beppev/$(inputs.params.image-name):$(inputs.params.version)"
+        - "--context=$(inputs.resources.git-source.path)/$(inputs.params.context)/"
