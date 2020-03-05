@@ -1,0 +1,7 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tekton-pipeline-istio-project-1
+  labels:
+    istio-injection: enabled #zorgt voor auto sidecar injection
