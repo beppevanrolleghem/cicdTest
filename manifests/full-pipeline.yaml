@@ -164,13 +164,13 @@ spec:
     - name: git-experimental
       type: git
   tasks:
-  - name: destroy-application #@TODO make it so that the delete can be skipped if error
-    taskRef:
-      name: destroy-application
-    resources:
-      inputs:
-        - name: git-source
-          resource: git-master
+  # - name: destroy-application #@TODO make it so that the delete can be skipped if error
+  #   taskRef:
+  #     name: destroy-application
+  #   resources:
+  #     inputs:
+  #       - name: git-source
+  #         resource: git-master
   - name: build-and-push-a
     taskRef:
       name: build-and-push
@@ -235,7 +235,7 @@ spec:
       - build-and-push-b-experimental
       - build-and-push-a
       - build-and-push-b-stable
-      - destroy-application
+      #- destroy-application
     resources:
       inputs:
         - name: git-source
