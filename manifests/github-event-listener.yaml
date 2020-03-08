@@ -47,6 +47,38 @@ spec:
             resourceRef:
               name: git-experimental
 ---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-trigger-role
+  namespace: tekton-pipeline-istio-project-1
+rules:
+# Permissions for every EventListener deployment to function
+- apiGroups: ["tekton.dev"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"] # secrets are only needed for Github/Gitlab interceptors
+  verbs: ["get", "list", "watch"]
+# Permissions to create resources in associated TriggerTemplates
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-trigger-role-binding
+  namespace: tekton-pipeline-istio-project-1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-trigger-role
+subjects:
+  - kind: ServiceAccount
+    name: service-acc
+    namespace: tekton-pipeline-istio-project-1
+---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener
 metadata:
