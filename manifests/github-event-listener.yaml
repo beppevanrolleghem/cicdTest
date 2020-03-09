@@ -1,0 +1,136 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github-trigger-binding
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  params:
+  - name: gitrevision
+    value: $(body.pull_request.head.sha)
+  - name: gitrepositoryurl
+    value: $(body.pull_request.head.repo.clone_url)
+  - name: prurl
+    value: $(body.pull_request.html_url)
+  - name: repo
+    value: $(body.pull_request.base.repo.full_name)
+  - name: source
+    value: github
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: github-trigger-template
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  params:
+    - name: gitrevision
+      description: The git revision
+      default: master
+    - name: gitrepositoryurl
+      description: The git repository url
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        name: application-pipeline-run
+        namespace: tekton-pipeline-istio-project-1
+      spec:
+        serviceAccountName: service-acc
+        pipelineRef:
+          name: application-pipeline
+        resources:
+          - name: git-master
+            resourceRef:
+              name: git-master
+          - name: git-experimental
+            resourceRef:
+              name: git-experimental
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-trigger-role
+  namespace: tekton-pipeline-istio-project-1
+rules:
+# Permissions for every EventListener deployment to function
+- apiGroups: ["tekton.dev"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"] # secrets are only needed for Github/Gitlab interceptors
+  verbs: ["get", "list", "watch"]
+# Permissions to create resources in associated TriggerTemplates
+- apiGroups: ["tekton.dev"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tekton-trigger-role-binding
+  namespace: tekton-pipeline-istio-project-1
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-trigger-role
+subjects:
+  - kind: ServiceAccount
+    name: service-acc
+    namespace: tekton-pipeline-istio-project-1
+---
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: github-event-listener
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  serviceAccountName: service-acc
+  triggers:
+  - binding:
+      name: github-trigger-binding
+    template:
+      name: github-trigger-template
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: expose-event-listener
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 443
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+    - port:
+        number: 80
+        name: http2
+        protocol: HTTP
+      hosts:
+        - "*"
+    - port:
+        number: 8080
+        name: http3
+        protocol: HTTP
+      hosts:
+        - "*"    
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: link-gateway-listener
+  namespace: tekton-pipeline-istio-project-1
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - expose-event-listener
+  http:
+    - route:
+        - destination:
+            host: el-github-event-listener
