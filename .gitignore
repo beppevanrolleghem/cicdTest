@@ -1,4 +1,5 @@
 config.json
 manifests/resources/secrets.yaml
 venv
-
+consul-helm
+consul-helm/**
