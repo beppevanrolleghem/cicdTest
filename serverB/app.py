@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def doRequest():
     data = {
-        "serverName": "serverB",
+        "serverName": "server-b",
         "version": "master",
         "success": "true"
     }

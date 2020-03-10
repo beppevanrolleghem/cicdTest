@@ -13,6 +13,7 @@ metadata:
   # namespace: consul-project-1
   annotations:
     "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
+    "consul.hashicorp.com/connect-service-upstreams": "server-b:6000"
 spec:
   replicas: 1
   selector:
@@ -26,9 +27,11 @@ spec:
         server: "http"
         app: "project-1"
         expose: "true"
+      annotations:
+        "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
+        - name: server-a #in tegenstelling tot istio, gebruikt consul de container naam, fam...
           image: beppev/server-a:master
           imagePullPolicy: "Always"
           ports:
@@ -56,9 +59,11 @@ spec:
         app: "project-1"
         version: v1
         backend: "true"
+      annotations:
+        "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
+        - name: server-b
           image: beppev/server-b:master
           imagePullPolicy: "Always"
           ports:
@@ -90,7 +95,7 @@ spec:
         "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
+        - name: server-b-test
           image: beppev/server-b:experimental
           imagePullPolicy: "Always"
           ports:
@@ -120,7 +125,7 @@ spec:
         "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
+        - name: server-d
           image: beppev/server-d:master
           ports:
             - containerPort: 6000
@@ -145,40 +150,40 @@ spec:
       nodePort: 30036
   type: NodePort
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: server-check
-  # namespace: consul-project-1
-  annotations:
-    "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
-  labels:
-    app: "project-1"
-spec:
-  selector:
-    backend: "true"
-  ports:
-    - name: http
-      protocol: TCP
-      port: 6000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mirror-service
-  # namespace: consul-project-1
-  annotations:
-    "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
-  labels:
-    app: "project-1"
-spec:
-  selector:
-    mirror: "true"
-  ports:
-    - name: http
-      protocol: TCP
-      port: 6000
----
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: server-check
+#   # namespace: consul-project-1
+#   annotations:
+#     "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
+#   labels:
+#     app: "project-1"
+# spec:
+#   selector:
+#     backend: "true"
+#   ports:
+#     - name: http
+#       protocol: TCP
+#       port: 6000
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mirror-service
+#   # namespace: consul-project-1
+#   annotations:
+#     "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
+#   labels:
+#     app: "project-1"
+# spec:
+#   selector:
+#     mirror: "true"
+#   ports:
+#     - name: http
+#       protocol: TCP
+#       port: 6000
+# ---
 # kind: service-splitter
 # name: server-check
 # splits: 
