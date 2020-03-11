@@ -18,8 +18,6 @@ client:
 
 # Use only one Consul server for local development
 server:
-  service:
-    type: 'NodePort'
   replicas: 1
   bootstrapExpect: 1
   disruptionBudget:

@@ -3,7 +3,7 @@ import requests
 
 app = Flask(__name__)
 
-URL = "http://server-check:6000"
+URL = "http://server-check.service.consul"
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -35,4 +35,4 @@ def findServer(name, port):
     return requests.get("http://"+name+":"+port)
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=80)

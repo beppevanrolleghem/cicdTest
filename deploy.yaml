@@ -6,6 +6,21 @@
 #   annotations:
 #     "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: account-a
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: account-b
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: account-b-test
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,11 +45,11 @@ spec:
         "consul.hashicorp.com/connect-inject": "true"
     spec:
       containers:
-        - name: front-end
-          image: beppev/server-a-consul:master
+        - name: server-a
+          image: beppev/server-a:master-consul
           imagePullPolicy: "Always"
           ports:
-            - containerPort: 5000
+            - containerPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,11 +77,11 @@ spec:
         "consul.hashicorp.com/connect-inject": "true"
     spec:
       containers:
-        - name: front-end
-          image: beppev/server-b-consul:master
+        - name: server-b
+          image: beppev/server-b:master-consul
           imagePullPolicy: "Always"
           ports:
-            - containerPort: 6000
+            - containerPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -94,11 +109,11 @@ spec:
         "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
-          image: beppev/server-b-consul:experimental
+        - name: server-b-test
+          image: beppev/server-b:experimental-consul
           imagePullPolicy: "Always"
           ports:
-            - containerPort: 6000
+            - containerPort: 80
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -124,30 +139,30 @@ spec:
         "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
     spec:
       containers:
-        - name: front-end
+        - name: server-d
           image: beppev/server-d-consul:master
           ports:
-            - containerPort: 6000
+            - containerPort: 80
 # ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: expose-service
-#   # namespace: consul-project-1
-#   annotations:
-#     "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
-#   labels:
-#     app: "project-1"
-# spec:
-#   selector:
-#     expose: "true"
-#   ports:
-#     - name: http
-#       protocol: TCP
-#       port: 5000
-#       targetPort: 5000
-#       nodePort: 30036
-#   type: NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: expose-service
+  # namespace: consul-project-1
+  annotations:
+    "consul.hashicorp.com/connect-inject": "true" #dit is hoe consul injection handled
+  labels:
+    app: "project-1"
+spec:
+  selector:
+    expose: "true"
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30036
+  type: NodePort
 # ---
 # apiVersion: v1
 # kind: Service
