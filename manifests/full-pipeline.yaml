@@ -23,7 +23,6 @@ rules:
       - ""
       - "apps"
       - "deploy"
-      - "networking.istio.io"
 # deze zullen we ook moeten aanpassen elke pipeline die we maken, maar, deze pipelines zijn nu specifiek per branch, dus dit zou geen probleem leveren.
     resources:
       - pods
@@ -204,14 +203,15 @@ spec:
     - name: branch
       description: name of the master branch of the repository
   workspaces:
-    - name: workspace
+    - name: workspace-master
+    - name: workspace-experimental
   tasks:
     - name: clone-master
       taskRef: 
         name: git-clone
       workspaces:
         - name: output
-          workspace: workspace
+          workspace: workspace-master
       params:
         - name: url
           value: $(inputs.params.git-url)
@@ -220,9 +220,11 @@ spec:
     - name: build-and-push-a
       taskRef:
         name: build-and-push
+      runAfter:
+        - clone-master
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-master
       params:
         - name: context
           value: "server-a"
@@ -233,9 +235,11 @@ spec:
     - name: build-and-push-b-stable
       taskRef:
         name: build-and-push
+      runAfter:
+        - clone-master
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-master
       params:
         - name: context
           value: "server-b"
@@ -246,9 +250,11 @@ spec:
     - name: build-and-push-d
       taskRef:
         name: build-and-push
+      runAfter:
+        - clone-master
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-master
       params:
         - name: context
           value: "server-d"
@@ -256,16 +262,12 @@ spec:
           value: "server-d"
         - name: version
           value: "$(inputs.params.master-branch)"
-    - name: clone-experimental-branch
+    - name: clone-experimental
       taskRef: 
         name: git-clone
       workspaces:
         - name: output
-          workspace: workspace
-      runAfter:
-        - build-and-push-a
-        - build-and-push-b-stable
-        - build-and-push-d
+          workspace: workspace-experimental
       params:
         - name: url
           value: $(inputs.params.git-url)
@@ -276,9 +278,9 @@ spec:
         name: build-and-push
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-experimental
       runAfter:
-        - clone-experimental-branch
+        - clone-experimental
       params:
         - name: context
           value: "server-b"
@@ -291,9 +293,12 @@ spec:
         name: execute-yaml
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-master
       runAfter:
         - build-and-push-b-experimental
+        - build-and-push-d
+        - build-and-push-a
+        - build-and-push-b-stable
       params:
         - name: yaml-location
           value: "infra.yaml"
@@ -302,6 +307,6 @@ spec:
         name: execute-yaml
       workspaces:
         - name: source
-          workspace: workspace
+          workspace: workspace-master
       runAfter:
         - deploy-infra

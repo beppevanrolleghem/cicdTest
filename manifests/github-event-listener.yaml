@@ -22,10 +22,21 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: workspace-pvc
+  name: workspace-pvc-master
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: workspace-pvc-experimental
+spec:
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
       storage: 500Mi
@@ -52,6 +63,13 @@ spec:
         serviceAccountName: service-acc
         pipelineRef:
           name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde #namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch. 
+        workspaces:
+        - name: workspace-master
+          persistentVolumeClaim:
+            claimName: workspace-pvc-master
+        - name: workspace-experimental
+          persistentVolumeClaim:
+            claimName: workspace-pvc-experimental
         params:
           - name: git-url
             value: $(inputs.params.gitrepositoryurl)
@@ -77,6 +95,12 @@ rules:
   - pipelineruns
   - pipelineresources
   - taskruns
+  - pods
+  - serviceaccounts
+  - namespaces
+  - services
+  - deployments
+  - deployments.apps
   verbs:
   - create
   - get
@@ -102,12 +126,10 @@ apiVersion: tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: github-event-listener
-  #namespace: stage-tekton-pipeline
 spec:
   serviceAccountName: service-acc
   triggers:
-  - binding:
-      name: github-trigger-binding
-    template:
-      name: github-trigger-template
----
+    - bindings:
+        - name: github-trigger-binding
+      template:
+        name: github-trigger-template

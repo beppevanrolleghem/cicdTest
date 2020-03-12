@@ -236,8 +236,8 @@ spec:
     - name: ExternalDomain
       value: kube.llocal.host
     - name: Service
-      value: getting-started
+      value: el-github-event-listener
     - name: ServicePort
-      value: "443"
+      value: "8080"
   timeout: 1000s
   serviceAccountName: service-acc

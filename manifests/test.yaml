@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: github-event-listener
+  #namespace: stage-tekton-pipeline
+spec:
+  serviceAccountName: service-acc
+  triggers:
+    - name: github-trigger
+      interceptors:
+        - github:
+            secretRef:
+              secretName: webhook-secret
+              secretKey: secret
+            eventTypes:
+              - pull_request
+              - push
+      bindings:
+        name: github-trigger-binding
+      template:
+        name: github-trigger-template
