@@ -19,6 +19,17 @@ spec:
   - name: source
     value: github
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: workspace-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+---
 apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
@@ -40,14 +51,12 @@ spec:
       spec:
         serviceAccountName: service-acc
         pipelineRef:
-          name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde #namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch.
-        resources:
-          - name: git-master 
-            resourceRef:
-              name: git-master
-          - name: git-experimental
-            resourceRef:
-              name: git-experimental
+          name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde #namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch. 
+        params:
+          - name: git-url
+            value: $(inputs.params.gitrepositoryurl)
+          - name: branch
+            value: $(inputs.params.gitrevision)
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1

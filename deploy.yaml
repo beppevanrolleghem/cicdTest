@@ -1,3 +1,5 @@
+#TODO ZORG ERVOOR DAT DEZE DEPLOYMENTS ENKEL DE CORRECTE ITEMS DEPLOYEN
+
 # ---
 # apiVersion: v1
 # kind: Namespace
@@ -5,32 +7,32 @@
 #   name: istio-project-1
 #   labels:
 #     istio-injection: enabled #zorgt voor auto sidecar injection
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: server-a
-#   namespace: istio-project-1
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       server: "http"
-#       app: "project-1" #app label bepaald groepering pods in kiali dashboard dus makkelijker te gebruiken
-#       expose: "true"
-#   template:
-#     metadata:
-#       labels:
-#         server: "http"
-#         app: "project-1"
-#         expose: "true"
-#     spec:
-#       containers:
-#         - name: front-end
-#           image: beppev/server-a:master
-#           imagePullPolicy: "Always"
-#           ports:
-#             - containerPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-a
+  namespace: istio-project-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      server: "http"
+      app: "project-1" #app label bepaald groepering pods in kiali dashboard dus makkelijker te gebruiken
+      expose: "true"
+  template:
+    metadata:
+      labels:
+        server: "http"
+        app: "project-1"
+        expose: "true"
+    spec:
+      containers:
+        - name: front-end
+          image: beppev/server-a:master
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 5000
 # ---
 # apiVersion: apps/v1
 # kind: Deployment
