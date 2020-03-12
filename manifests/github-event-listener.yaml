@@ -129,7 +129,15 @@ metadata:
 spec:
   serviceAccountName: service-acc
   triggers:
-    - bindings:
+    - name: github
+      interceptors:
+        - github:
+            secretRef:
+              secretName: github-secret
+              secretKey: secret
+            eventTypes:
+              - pull_request
+      bindings:
         - name: github-trigger-binding
       template:
         name: github-trigger-template
