@@ -5,7 +5,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: github-trigger-binding
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   params:
   - name: gitrevision
@@ -23,7 +23,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: github-trigger-template
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   params:
     - name: gitrevision
@@ -36,11 +36,11 @@ spec:
       kind: PipelineRun
       metadata:
         name: application-pipeline-run
-        namespace: stage-tekton-pipeline
+        #namespace: stage-tekton-pipeline
       spec:
         serviceAccountName: service-acc
         pipelineRef:
-          name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch.
+          name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde #namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch.
         resources:
           - name: git-master 
             resourceRef:
@@ -49,32 +49,37 @@ spec:
             resourceRef:
               name: git-experimental
 ---
-kind: Role
+kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: tekton-trigger-role
-  namespace: stage-tekton-pipeline
 rules:
-# Permissions for every EventListener deployment to function
-- apiGroups: ["tekton.dev"]
-  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
-  verbs: ["get"]
-- apiGroups: [""]
-  resources: ["configmaps", "secrets"] # secrets are only needed for Github/Gitlab interceptors
-  verbs: ["get", "list", "watch"]
-# Permissions to create resources in associated TriggerTemplates
-- apiGroups: ["tekton.dev"]
-  resources: ["pipelineruns", "pipelineresources", "taskruns"]
-  verbs: ["create"]
-- apiGroups: ["extensions"]
-  resources: ["ingresses"]
-  verbs: ["create", "get", "delete"]
+- apiGroups:
+  - "extensions"
+  - "tekton.dev"
+  - ""
+  resources:
+  - ingresses
+  - eventlisteners
+  - triggerbindings
+  - triggertemplates
+  - configmaps
+  - secrets
+  - pipelineruns
+  - pipelineresources
+  - taskruns
+  verbs:
+  - create
+  - get
+  - list
+  - delete
+  - update
+  - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRoleBinding
 metadata:
   name: tekton-trigger-role-binding
-  namespace: stage-tekton-pipeline
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -82,13 +87,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: service-acc
-    namespace: stage-tekton-pipeline
+    namespace: default
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: github-event-listener
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   serviceAccountName: service-acc
   triggers:

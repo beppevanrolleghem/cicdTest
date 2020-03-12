@@ -8,7 +8,7 @@
 # kind: Secret
 # metadata:
 #   name: webhook-secret
-#   namespace: stage-tekton-pipeline
+#   #namespace: stage-tekton-pipeline
 # stringData:
 #   token: GITHUBTOKEN
 #   secret: random-string-data
@@ -17,7 +17,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: create-webhook
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   volumes:
   - name: github-secret
@@ -69,7 +69,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
   name: create-repo-webhook
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   taskRef:
     name: create-webhook
@@ -88,7 +88,7 @@ spec:
     - name: GitHubSecretStringKey
       value: secret
     - name: ExternalDomain
-      value: 35.233.93.220
+      value: kube.llocal.host
   timeout: 1000s
   serviceAccountName: service-acc
 
@@ -97,7 +97,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: create-ingress
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   volumes:
   - name: work
@@ -176,6 +176,7 @@ spec:
         kind: Ingress
         metadata:
           name: $(inputs.params.Service)
+          #namespace: stage-tekton-pipeline
           ownerReferences:
           - name: $(inputs.params.Service)
             apiVersion: v1
@@ -200,6 +201,7 @@ spec:
         kind: Ingress
         metadata:
           name: $(inputs.params.Service)
+          #namespace: stage-tekton-pipeline
         spec:
           tls:
           - secretName: $(inputs.params.CertificateSecretName)
@@ -219,7 +221,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
   name: create-ingress-run
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   taskRef:
     name: create-ingress
@@ -232,7 +234,7 @@ spec:
     - name: CertificateSecretName
       value: ingresssecret
     - name: ExternalDomain
-      value: 35.233.93.220
+      value: kube.llocal.host
     - name: Service
       value: getting-started
     - name: ServicePort

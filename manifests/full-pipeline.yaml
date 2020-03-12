@@ -1,16 +1,16 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: stage-tekton-pipeline
-  labels:
-    istio-injection: enabled #zorgt voor auto sidecar injection
+# ---
+# apiVersion: v1
+# kind: #namespace
+# metadata:
+#   name: stage-tekton-pipeline
+#   labels:
+#     istio-injection: enabled #zorgt voor auto sidecar injection
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: service-acc
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 secrets:
   - name: regcred
 ---
@@ -55,13 +55,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: service-acc
-    namespace: stage-tekton-pipeline
+    namespace: default
 ---
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
 metadata:
   name: git-master
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   type: git
   params:
@@ -74,7 +74,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
 metadata:
   name: git-experimental
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   type: git
   params:
@@ -83,11 +83,11 @@ spec:
     - name: url
       value: git://github.com/beppevanrolleghem/cicdTest
 ---
-apiVersion: tekton.dev/v1alpha1
+apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: build-and-push
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   inputs:
     resources:
@@ -118,7 +118,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: destroy-application
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   inputs:
     resources:
@@ -138,7 +138,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: deploy-application
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   inputs:
     resources:
@@ -157,7 +157,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
   name: application-pipeline
-  namespace: stage-tekton-pipeline
+  #namespace: stage-tekton-pipeline
 spec:
   resources:
     - name: git-master
