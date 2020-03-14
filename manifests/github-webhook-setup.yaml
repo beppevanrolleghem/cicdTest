@@ -88,7 +88,7 @@ spec:
     - name: GitHubSecretStringKey
       value: secret
     - name: ExternalDomain
-      value: kube.llocal.host
+      value: "ingress.llocal.host:31040"
   timeout: 1000s
   serviceAccountName: service-acc
 
@@ -234,7 +234,7 @@ spec:
     - name: CertificateSecretName
       value: ingresssecret
     - name: ExternalDomain
-      value: kube.llocal.host
+      value: "ingress.llocal.host:31040"
     - name: Service
       value: el-github-event-listener
     - name: ServicePort
