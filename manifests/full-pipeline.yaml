@@ -31,9 +31,6 @@ rules:
       - services
       - deployments
       - deployments.apps
-      - destinationrules
-      - gateways
-      - virtualservices
     verbs:
       - list
       - watch
@@ -100,7 +97,7 @@ spec:
   - name: clone
     image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:latest
     script: |
-      CHECKOUT_DIR="$(workspaces.output.path)/$(inputs.params.subdirectory)"
+      CHECKOUT_DIR="$(workspaces.output.path)"
       cleandir() {
         # Delete any existing contents of the repo directory if it exists.
         #
