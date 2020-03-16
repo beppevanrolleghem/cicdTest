@@ -88,22 +88,9 @@ spec:
     - name: GitHubSecretStringKey
       value: secret
     - name: ExternalDomain
-      value: "ingress.llocal.host:31040/github"
+      value: "ingress.llocal.host"
   timeout: 1000s
   serviceAccountName: service-acc
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: github-ingress
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /github
-        backend:
-          serviceName: manual-service
-          servicePort: 8080
 ---
 apiVersion: v1
 kind: Service
@@ -115,12 +102,11 @@ spec:
     port: 8080
     protocol: TCP
     targetPort: 8080
-    nodePort: 30037
   selector:
     app.kubernetes.io/managed-by: EventListener
     app.kubernetes.io/part-of: Triggers
     eventlistener: github-event-listener
-  type: NodePort
+  type: LoadBalancer
 
 
 

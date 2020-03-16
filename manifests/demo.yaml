@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shell-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/managed-by: EventListener
+      app.kubernetes.io/part-of: Triggers
+      eventlistener: github-event-listener
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: EventListener
+        app.kubernetes.io/part-of: Triggers
+        eventlistener: github-event-listener
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 8080

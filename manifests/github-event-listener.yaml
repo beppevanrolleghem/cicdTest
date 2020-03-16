@@ -9,9 +9,9 @@ metadata:
 spec:
   params:
   - name: gitrevision
-    value: $(body)
+    value: $(body.repository.default_branch)
   - name: gitrepositoryurl
-    value: $(body)
+    value: $(body.repository.clone_url)
   # - name: prurl
   #   value: $(body.pull_request.html_url)
   # - name: repo
