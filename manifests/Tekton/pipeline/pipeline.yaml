@@ -1,0 +1,120 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: application-pipeline
+  #namespace: stage-tekton-pipeline
+spec:
+  params:
+    - name: git-url
+      description: url of the github repository to clone
+    - name: branch
+      description: name of the master branch of the repository
+  workspaces:
+    - name: workspace-master
+    - name: workspace-experimental
+  tasks:
+    - name: clone-master
+      taskRef: 
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: workspace-master
+      params:
+        - name: url
+          value: $(inputs.params.git-url)
+        - name: revision
+          value: $(inputs.params.master-branch)
+    - name: build-and-push-a
+      taskRef:
+        name: build-and-push
+      runAfter:
+        - clone-master
+      workspaces:
+        - name: source
+          workspace: workspace-master
+      params:
+        - name: context
+          value: "server-a"
+        - name: image-name
+          value: "server-a"
+        - name: version
+          value: "$(inputs.params.master-branch)"
+    - name: build-and-push-b-stable
+      taskRef:
+        name: build-and-push
+      runAfter:
+        - clone-master
+      workspaces:
+        - name: source
+          workspace: workspace-master
+      params:
+        - name: context
+          value: "server-b"
+        - name: image-name
+          value: "server-b"
+        - name: version
+          value: "$(inputs.params.master-branch)"
+    - name: build-and-push-d
+      taskRef:
+        name: build-and-push
+      runAfter:
+        - clone-master
+      workspaces:
+        - name: source
+          workspace: workspace-master
+      params:
+        - name: context
+          value: "server-d"
+        - name: image-name
+          value: "server-d"
+        - name: version
+          value: "$(inputs.params.master-branch)"
+    - name: clone-experimental
+      taskRef: 
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: workspace-experimental
+      params:
+        - name: url
+          value: $(inputs.params.git-url)
+        - name: revision
+          value: $(inputs.params.experimental-branch)
+    - name: build-and-push-b-experimental
+      taskRef:
+        name: build-and-push
+      workspaces:
+        - name: source
+          workspace: workspace-experimental
+      runAfter:
+        - clone-experimental
+      params:
+        - name: context
+          value: "server-b"
+        - name: image-name
+          value: "server-b"
+        - name: version
+          value: "$(inputs.params.experimental-branch)"
+    - name: deploy-infra
+      taskRef:
+        name: execute-yaml
+      workspaces:
+        - name: source
+          workspace: workspace-master
+      runAfter:
+        - build-and-push-b-experimental
+        - build-and-push-d
+        - build-and-push-a
+        - build-and-push-b-stable
+      params:
+        - name: yaml-location
+          value: "infra.yaml"
+    - name: execute-yaml #@TODO make it so that the delete can be skipped if error
+      taskRef:
+        name: execute-yaml
+      workspaces:
+        - name: source
+          workspace: workspace-master
+      runAfter:
+        - deploy-infra

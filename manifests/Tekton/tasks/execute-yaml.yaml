@@ -1,0 +1,24 @@
+
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: execute-yaml
+  #namespace: stage-tekton-pipeline
+spec:
+  params:
+    - name: yaml-location
+      default: deploy.yaml
+    - name: command
+      default: apply
+  workspaces:
+    - name: source
+      mountpath: /source
+  steps:
+    - name: deploy-new-app
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "$(params.command)"
+        - "-f"
+        - "/source/$(params.yaml-location)"

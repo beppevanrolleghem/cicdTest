@@ -1,0 +1,72 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: git-clone
+spec:
+  workspaces:
+    - name: output
+      description: workspace the repo will be cloned into
+  params:
+    - name: url
+      description: git url to clone
+      type: string
+    - name: revision
+      description: git revision to checkout (branch, tag, sha, ref…)
+      type: string
+      default: master
+    - name: submodules
+      description: defines if the resource should initialize and fetch the submodules
+      type: string
+      default: "true"
+    - name: depth
+      description: performs a shallow clone where only the most recent commit(s) will be fetched
+      type: string
+      default: "1"
+    - name: sslVerify
+      description: defines if http.sslVerify should be set to true or false in the global git config
+      type: string
+      default: "true"
+    - name: subdirectory
+      description: subdirectory inside the "output" workspace to clone the git repo into
+      type: string
+      default: "src"
+    - name: deleteExisting
+      description: clean out the contents of the repo's destination directory (if it already exists) before trying to clone the repo there
+      type: string
+      default: "true"
+  results:
+    - name: commit
+      description: The precise commit SHA that was fetched by this Task
+  steps:
+    - name: clone
+      image: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:latest
+      script: |
+        CHECKOUT_DIR="$(workspaces.output.path)"
+        cleandir() {
+          if [[ -d "$CHECKOUT_DIR" ]] ; then
+            rm -rf "$CHECKOUT_DIR"/*
+            rm -rf "$CHECKOUT_DIR"/.[!.]*
+            rm -rf "$CHECKOUT_DIR"/..?*
+          fi
+        }
+        if [[ "$(inputs.params.deleteExisting)" == "true" ]] ; then
+          cleandir
+          ls -lah "$CHECKOUT_DIR"
+        fi
+        /ko-app/git-init \
+          -url "$(inputs.params.url)" \
+          -revision "$(inputs.params.revision)" \
+          -path "$CHECKOUT_DIR" \
+          -sslVerify "$(inputs.params.sslVerify)" \
+          -submodules "$(inputs.params.submodules)" \
+          -depth "$(inputs.params.depth)"
+        cd "$CHECKOUT_DIR"
+        RESULT_SHA="$(git rev-parse HEAD | tr -d '\n')"
+        EXIT_CODE="$?"
+        if [ "$EXIT_CODE" != 0 ]
+        then
+          exit $EXIT_CODE
+        fi
+        # Make sure we don't add a trailing newline to the result!
+        echo -n "$RESULT_SHA" > $(results.commit.path)

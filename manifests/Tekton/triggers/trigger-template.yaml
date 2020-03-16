@@ -1,0 +1,35 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: github-trigger-template
+  #namespace: stage-tekton-pipeline
+spec:
+  params:
+    - name: gitrevision
+      description: The git revision
+      default: master
+    - name: gitrepositoryurl
+      description: The git repository url
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1alpha1
+      kind: PipelineRun
+      metadata:
+        name: application-pipeline-run
+        #namespace: stage-tekton-pipeline
+      spec:
+        serviceAccountName: service-acc
+        pipelineRef:
+          name: application-pipeline #gebruik dit om de pipeline aan te passen naar andere versies, zolang ze zich in dezelfde #namespace bevinden kunnen we deze pipeline hergebruiken om deployments op de cluster uit te voeren. service-mesh agnostisch. 
+        workspaces:
+        - name: workspace-master
+          persistentVolumeClaim:
+            claimName: workspace-pvc-master
+        - name: workspace-experimental
+          persistentVolumeClaim:
+            claimName: workspace-pvc-experimental
+        params:
+          - name: git-url
+            value: $(inputs.params.gitrepositoryurl)
+          - name: branch
+            value: $(inputs.params.gitrevision)

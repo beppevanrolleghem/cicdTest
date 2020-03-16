@@ -1,0 +1,18 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: github-trigger-binding
+  #namespace: stage-tekton-pipeline
+spec:
+  params:
+  - name: gitrevision
+    value: $(body.repository.default_branch)
+  - name: gitrepositoryurl
+    value: $(body.repository.clone_url)
+  # - name: prurl
+  #   value: $(body.pull_request.html_url)
+  # - name: repo
+  #   value: $(body.pull_request.base.repo.full_name)
+  # - name: source
+  #   value: github

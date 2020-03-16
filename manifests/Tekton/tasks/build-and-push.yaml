@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: build-and-push
+spec:
+  params:
+  - name: context
+    description: The path to the build context, used by Kaniko - within the workspace
+    default: .
+    type: string
+  - name: image-name
+    description: dockerhub url
+    type: string
+  - name: version
+    description: image-version (for instance latest or beta)
+    type: string
+  workspaces:
+  - name: source
+    mountpath: /source
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor
+      env:
+        - name: "DOCKER_CONFIG"
+          value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - "--dockerfile=/source/$(params.context)/dockerfile"
+        - "--destination=beppev/$(params.image-name):$(params.version)"
+        - "--context=/source/$(params.context)/"

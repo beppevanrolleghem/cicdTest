@@ -18,8 +18,8 @@ spec:
         eventlistener: github-event-listener
     spec:
       containers:
-        - name: nginx
-          image: nginx
+        - name: network-multitool
+          image: praqma/network-multitool
           imagePullPolicy: "Always"
           ports:
             - containerPort: 8080

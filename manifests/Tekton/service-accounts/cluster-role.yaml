@@ -1,0 +1,43 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: allow-creation
+rules:
+  - apiGroups:
+      - ""
+      - "apps"
+      - "deploy"
+      - "rbac.authorization.k8s.io"
+      - "networking.k8s.io"
+      - "extensions"
+      - "tekton.dev"
+# deze zullen we ook moeten aanpassen elke pipeline die we maken, maar, deze pipelines zijn nu specifiek per branch, dus dit zou geen probleem leveren.
+    resources:
+      - pods
+      - serviceaccounts
+      - namespaces
+      - services
+      - deployments
+      - deployments.apps
+      - clusterroles
+      - roles
+      - clusterrolebindings
+      - rolebindings
+      - ingresses
+      - eventlisteners
+      - triggerbindings
+      - triggertemplates
+      - configmaps
+      - secrets
+      - pipelineruns
+      - pipelineresources
+      - taskruns
+    verbs:
+      - list
+      - watch
+      - get
+      - create
+      - update
+      - patch
+      - delete

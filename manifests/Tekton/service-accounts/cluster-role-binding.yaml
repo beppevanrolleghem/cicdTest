@@ -10,4 +10,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: service-acc
-    namespace: tekton-pipeline-istio-project-1
+    namespace: default
